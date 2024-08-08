@@ -20,7 +20,7 @@ service = webdriver.ChromeService(executable_path='chromedriver.exe')
 
 resultados = []
 
-for i in range(1, 3): # 1 al 766
+for i in range(1, 767): # 1 al 766
 
     print(i)
 
