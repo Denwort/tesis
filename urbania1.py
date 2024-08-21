@@ -37,38 +37,19 @@ for i in range(1, 5): # 1 al 766
 
     for oferta in ofertas:
 
-        direccion = oferta.find_element(By.XPATH, './/h2[starts-with(@class, "LocationLocation")]').text
-
         link = oferta.find_element(By.XPATH, './/div[starts-with(@class, "PostingCardLayout")]').get_attribute('data-to-posting')
-
-        try:
-            etapa_contenedor = oferta.find_element(By.XPATH, './/div[@class="StageContainer-sc-u5gnbo-0 crmNvX"]')
         
-            estado = etapa_contenedor.text.split('\n')[0].strip().split("·")[0].strip()
-            entrega_aprox = etapa_contenedor.find_element(By.XPATH, './span').text  
-        
-        except Exception as e:
-            estado = "Departamento finalizado"
-            entrega_aprox = "Departamento finalizado"
-
-        try:
-            
-            mantenimiento_contenedor = oferta.find_element(By.XPATH, './/div[@data-qa="expensas"]')
-            
-            
-            mantenimiento_texto = mantenimiento_contenedor.text  
-            mantenimiento = ''.join(filter(str.isdigit, mantenimiento_texto))  
-    
-        except Exception as e:
-
-            mantenimiento = "No hay mantenimiento"
-        
-
-        resultados.append((link, direccion, estado, entrega_aprox, mantenimiento))
+        resultados.append([link])
     
     driver.quit()
 
-with open('resultados.csv', 'w', newline='', encoding='utf-8') as csvfile:
+    #aca con cada uno de ese link debes hacerle webscrapping otra vez para revisar q hay en cada una de las paginas
+    
+
+
+with open('resultados1.csv', 'w', newline='', encoding='utf-8') as csvfile:
     csvwriter = csv.writer(csvfile)
-    csvwriter.writerow(['Link', 'Dirección', 'Estado', 'Entrega_aprox', 'Mantenimiento'])
+    csvwriter.writerow(['Link'])
     csvwriter.writerows(resultados)
+
+print("war is over")
