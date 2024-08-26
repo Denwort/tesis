@@ -1,33 +1,32 @@
 Distritos:
-San Miguel
-Pueblo libre
-Magdalena
-Jesus Maria
-Lince
-San Isidro
-Miraflores
-Surquillo
-San Borja
-Santiago de Surco
-Barranco
+- San Miguel
+- Pueblo libre
+- Magdalena
+- Jesus Maria
+- Lince
+- San Isidro
+- Miraflores
+- Surquillo
+- San Borja
+- Santiago de Surco
+- Barranco
 
 Datos de:
 - link
-- nombre del proyecto / nombre de inmobiliaria
+- referencia (nombre del proyecto / nombre de inmobiliaria)
 - latitud
 - longitud
 - direccion
 - distrito
-- etapa
-- "fecha de entrega"
-- "financiamiento"
-- areas comunes : listado
+- etapa ("en construccion", "en planos", "entrega inmediata")
+- fecha_entrega (fecha de entrega)
+- financiamiento (banco que financia)
+- areas comunes (listado de areas comunes o facilidades)
 
 - tipo 
-- piso
+- pisos
 - dormitorios
 - area
-- precio
-- moneda
+- precio (con moneda)
 
 
