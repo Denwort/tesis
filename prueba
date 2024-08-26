@@ -1,0 +1,9 @@
+def extract_location(input_string):
+    # Divide la cadena por la coma y toma la segunda parte
+    parts = input_string.split('- ')
+    # Retorna la segunda parte o la cadena original si no hay coma
+    return parts[1] if len(parts) > 1 else input_string
+
+# Ejemplos de uso
+print(extract_location("Limatambo - Surquillo"))  # Salida: "Surquillo"
+print(extract_location("- Santiago De Surco"))   # Salida: "Santiago De Surco"

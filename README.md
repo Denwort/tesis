@@ -1,3 +1,4 @@
+Distritos:
 San Miguel
 Pueblo libre
 Magdalena
@@ -12,11 +13,11 @@ Barranco
 
 Datos de:
 - link
-- nombre del proyecto
+- nombre del proyecto / nombre de inmobiliaria
 - latitud
 - longitud
 - direccion
-- distrito (lugar)
+- distrito
 - etapa
 - "fecha de entrega"
 - "financiamiento"
