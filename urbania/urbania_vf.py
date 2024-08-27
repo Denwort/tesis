@@ -24,8 +24,8 @@ df = pd.read_csv(input_csv)
 resultados = []
 
 # Iterar sobre cada fila del CSV
-for index, row in df.iterrows(): 
-#for index, row in df.head(3).iterrows():
+#for index, row in df.iterrows(): 
+for index, row in df.head(3).iterrows():
     link = row['Link']
     direccion = row['Dirección']
 
@@ -62,8 +62,31 @@ for index, row in df.iterrows():
     except Exception as e:
         areas_comunes = []
 
+    try:
+        # Extraer el texto del XPath dado
+        referencia = driver.find_element(By.XPATH, '//*[@id="new-gallery-portal"]/div/div[2]/div/div').text
+    except Exception as e:
+        referencia = "No hay referencia"
+
+    try:
+        # Extraer el elemento del mapa estático
+        static_map_element = driver.find_element(By.ID, 'static-map')
+        src_attribute = static_map_element.get_attribute('src')
+        
+        # Extraer la latitud y longitud usando una expresión regular
+        lat_long_match = re.search(r'center=([-0-9.]+),([-0-9.]+)', src_attribute)
+        if lat_long_match:
+            latitud = lat_long_match.group(1)
+            longitud = lat_long_match.group(2)
+        else:
+            latitud = "No encontrada"
+            longitud = "No encontrada"
+    except Exception as e:
+        latitud = "No encontrada"
+        longitud = "No encontrada"
+
     # Agregar los resultados
-    resultados.append((link, direccion, estado_final, direccion_extraida, fecha_entrega,', '.join(areas_comunes)))
+    resultados.append((link, direccion, estado_final, direccion_extraida, fecha_entrega,', '.join(areas_comunes),referencia,latitud,longitud))
     
     driver.quit()
 
@@ -71,5 +94,5 @@ for index, row in df.iterrows():
 output_csv = './urbania/urbania_vf.csv'
 with open(output_csv, 'w', newline='', encoding='utf-8') as csvfile:
     csvwriter = csv.writer(csvfile)
-    csvwriter.writerow(['Link', 'Dirección', 'Estado', 'direccion', 'FechaEntrega','AreasComunes'])
+    csvwriter.writerow(['Link', 'Dirección', 'Estado', 'direccion', 'FechaEntrega','AreasComunes','referencia','Latitud','Longitud'])
     csvwriter.writerows(resultados)
