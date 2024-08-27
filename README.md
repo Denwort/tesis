@@ -23,8 +23,9 @@ Datos de:
 - financiamiento (banco que financia)
 - areas comunes (listado de areas comunes o facilidades)
 
-- tipo 
-- pisos
+- tipo ("flat" o "duplex")
+- tipologia (tipo o modelo del departamento)
+- piso
 - dormitorios
 - area
 - precio (con moneda)

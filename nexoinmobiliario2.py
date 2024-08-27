@@ -70,14 +70,15 @@ with open('nexoinmobiliaria.csv', 'r', encoding='utf-8') as csvfile:
                 flats = nav_flat.find_elements(By.CLASS_NAME, 'Project-available-model')
 
                 for flat in flats:
-
-                    tipo = flat.find_element(By.XPATH, './/span[contains(@class, "name_tipology")]').text
+                    
+                    tipo = "flat"
+                    tipologia = flat.find_element(By.XPATH, './/span[contains(@class, "name_tipology")]').text
                     pisos = flat.find_element(By.CSS_SELECTOR, 'span.num_pisos').text
                     dormitorios = flat.find_element(By.CSS_SELECTOR, 'span.bedroom').text
                     area = flat.find_element(By.CSS_SELECTOR, 'span.area').text
                     precio = flat.find_element(By.CSS_SELECTOR, 'span.price').text
 
-                    resultados.append((link, referencia, latitud, longitud, direccion, distrito, etapa, fecha_entrega, financiamiento, areas_comunes, tipo, pisos, dormitorios, area, precio))
+                    resultados.append((link, referencia, latitud, longitud, direccion, distrito, etapa, fecha_entrega, financiamiento, areas_comunes, tipo, tipologia, pisos, dormitorios, area, precio))
 
             if nav_duplex_exists:
                 nav_duplex = driver.find_element(By.ID, 'nav-duplex')
@@ -85,18 +86,24 @@ with open('nexoinmobiliaria.csv', 'r', encoding='utf-8') as csvfile:
 
                 for flat in flats:
 
+                    tipo = "duplex"
                     tipo = flat.find_element(By.XPATH, './/span[contains(@class, "name_tipology")]').text
                     pisos = flat.find_element(By.CSS_SELECTOR, 'span.num_pisos').text
                     dormitorios = flat.find_element(By.CSS_SELECTOR, 'span.bedroom').text
                     area = flat.find_element(By.CSS_SELECTOR, 'span.area').text
                     precio = flat.find_element(By.CSS_SELECTOR, 'span.price').text
 
-                    resultados.append((link, referencia, latitud, longitud, direccion, distrito, etapa, fecha_entrega, financiamiento, areas_comunes, tipo, pisos, dormitorios, area, precio))
+                    resultados.append((link, referencia, latitud, longitud, direccion, distrito, etapa, fecha_entrega, financiamiento, areas_comunes, tipo, tipologia, pisos, dormitorios, area, precio))
 
         except Exception as e:
             print(f"{link}")
             #print(traceback.format_exc()) 
         
+with open('nexoinmobiliaria2.csv', 'w', newline='', encoding='utf-8') as csvfile:
+    csvwriter = csv.writer(csvfile)
+    csvwriter.writerow(['link', 'referencia', 'latitud', 'longitud', 'direccion', 'distrito', 'etapa', 'fecha_entrega', 'financiamiento', 'areas_comunes', 'tipo', 'tipologia', 'piso', 'dormitorios', 'area', 'precio'])
+    csvwriter.writerows(resultados)
+
 driver.quit()
 
 '''
