@@ -55,9 +55,12 @@ with open('./nexoinmobiliario/links.csv', 'r', encoding='utf-8') as csvfile:
             fecha_entrega = informacion.find_element(By.XPATH, './tbody/tr[5]/td[2]').text
             financiamiento = informacion.find_element(By.XPATH, './tbody/tr[6]/td[2]').text
 
-            ul = driver.find_element(By.CSS_SELECTOR, 'ul.Project-areas-list')
-            li = ul.find_elements(By.TAG_NAME, 'li')
-            areas_comunes = [li.text for li in li]
+            ul_exists = check_element_exists(driver, By.CSS_SELECTOR, 'ul.Project-areas-list')
+            areas_comunes = []
+            if ul_exists:
+                ul = driver.find_element(By.CSS_SELECTOR, 'ul.Project-areas-list')
+                li = ul.find_elements(By.TAG_NAME, 'li')
+                areas_comunes = [li.text for li in li]
 
             nav_flat_exists = check_element_exists(driver, By.ID, 'nav-flat')
             nav_duplex_exists = check_element_exists(driver, By.ID, 'nav-duplex')
