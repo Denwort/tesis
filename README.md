@@ -12,7 +12,6 @@ Barranco
 
 Datos de:
 - link
-- nombre del proyecto
 - latitud
 - longitud
 - direccion
@@ -28,5 +27,3 @@ Datos de:
 - area
 - precio
 - moneda
-
-
