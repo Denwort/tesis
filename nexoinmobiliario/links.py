@@ -36,7 +36,7 @@ for oferta in ofertas:
 
 driver.quit()
 
-with open('nexoinmobiliaria.csv', 'w', newline='', encoding='utf-8') as csvfile:
+with open('./nexoinmobiliario/links.csv', 'w', newline='', encoding='utf-8') as csvfile:
     csvwriter = csv.writer(csvfile)
     csvwriter.writerow(['Link', 'Dirección'])
     csvwriter.writerows(resultados)

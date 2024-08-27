@@ -15,8 +15,8 @@ user_agents = [
 options = webdriver.ChromeOptions()
 options.add_argument('--disable-javascript')
 options.add_argument(f'user-agent={random.choice(user_agents)}')
-options.add_argument('--start-maximized')
 options.add_argument('--disable-extensions')
+#options.add_argument('--headless') # No muestra la ventana
 service = webdriver.ChromeService(executable_path='chromedriver.exe')
 
 resultados = []
@@ -30,15 +30,13 @@ def check_element_exists(driver, by, value):
     except Exception:
         return False
 
-with open('nexoinmobiliaria.csv', 'r', encoding='utf-8') as csvfile:
+with open('./nexoinmobiliario/links.csv', 'r', encoding='utf-8') as csvfile:
     lines = csvfile.readlines()
 
     for line in lines[1:]:
         row = line.strip().split(",", 1)
-        resultados.append((row[0], row[1]))
 
-        link = row[0]   
-        
+        link = row[0]        
         driver.get(link)
         
         try:
@@ -66,6 +64,9 @@ with open('nexoinmobiliaria.csv', 'r', encoding='utf-8') as csvfile:
 
             if nav_flat_exists:
 
+                flat_tab = driver.find_element(By.CSS_SELECTOR, 'a[href="#nav-flat"]')
+                flat_tab.click()
+
                 nav_flat = driver.find_element(By.ID, 'nav-flat')
                 flats = nav_flat.find_elements(By.CLASS_NAME, 'Project-available-model')
 
@@ -81,13 +82,17 @@ with open('nexoinmobiliaria.csv', 'r', encoding='utf-8') as csvfile:
                     resultados.append((link, referencia, latitud, longitud, direccion, distrito, etapa, fecha_entrega, financiamiento, areas_comunes, tipo, tipologia, pisos, dormitorios, area, precio))
 
             if nav_duplex_exists:
+
+                duplex_tab = driver.find_element(By.CSS_SELECTOR, 'a[href="#nav-duplex"]')
+                duplex_tab.click()
+
                 nav_duplex = driver.find_element(By.ID, 'nav-duplex')
                 flats = nav_duplex.find_elements(By.CLASS_NAME, 'Project-available-model')
 
                 for flat in flats:
-
+                    
                     tipo = "duplex"
-                    tipo = flat.find_element(By.XPATH, './/span[contains(@class, "name_tipology")]').text
+                    tipologia = flat.find_element(By.CSS_SELECTOR, 'span.name_tipology').text
                     pisos = flat.find_element(By.CSS_SELECTOR, 'span.num_pisos').text
                     dormitorios = flat.find_element(By.CSS_SELECTOR, 'span.bedroom').text
                     area = flat.find_element(By.CSS_SELECTOR, 'span.area').text
@@ -95,11 +100,14 @@ with open('nexoinmobiliaria.csv', 'r', encoding='utf-8') as csvfile:
 
                     resultados.append((link, referencia, latitud, longitud, direccion, distrito, etapa, fecha_entrega, financiamiento, areas_comunes, tipo, tipologia, pisos, dormitorios, area, precio))
 
+            if nav_flat_exists == False and nav_duplex_exists == False:
+                print(f"{link}")
+
         except Exception as e:
             print(f"{link}")
             #print(traceback.format_exc()) 
         
-with open('nexoinmobiliaria2.csv', 'w', newline='', encoding='utf-8') as csvfile:
+with open('./nexoinmobiliario/scrap.csv', 'w', newline='', encoding='utf-8') as csvfile:
     csvwriter = csv.writer(csvfile)
     csvwriter.writerow(['link', 'referencia', 'latitud', 'longitud', 'direccion', 'distrito', 'etapa', 'fecha_entrega', 'financiamiento', 'areas_comunes', 'tipo', 'tipologia', 'piso', 'dormitorios', 'area', 'precio'])
     csvwriter.writerows(resultados)
