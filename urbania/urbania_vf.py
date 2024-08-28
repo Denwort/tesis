@@ -15,8 +15,8 @@ user_agents = [
 options = webdriver.ChromeOptions()
 options.add_argument(f'user-agent={random.choice(user_agents)}')
 options.add_argument('--disable-extensions')
-service = webdriver.ChromeService(executable_path='chromedriver.exe')
-#service = webdriver.ChromeService('./chromedriver')
+#service = webdriver.ChromeService(executable_path='chromedriver.exe')
+service = webdriver.ChromeService('./chromedriver')
 
 input_csv = './urbania/urbania_links.csv'
 df = pd.read_csv(input_csv)
@@ -33,7 +33,6 @@ for index, row in df.head(3).iterrows():
 
     driver.get(link)
 
-    # Esperar a que el botón de cookies aparezca y hacer clic
     cookies = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="cookies-policy"]/div/div/div[2]/button'))) 
     cookies.click()
 
@@ -55,7 +54,6 @@ for index, row in df.head(3).iterrows():
         fecha_entrega = "sin fecha_entrega"
 
     try:
-        # Extraer las áreas comunes
         areas_comunes_box = driver.find_element(By.ID, 'reactGeneralFeatures')
         areas_comunes_elements = areas_comunes_box.find_elements(By.XPATH, './div/div')
         areas_comunes = [element.text.strip() for element in areas_comunes_elements]
@@ -63,17 +61,14 @@ for index, row in df.head(3).iterrows():
         areas_comunes = []
 
     try:
-        # Extraer el texto del XPath dado
         referencia = driver.find_element(By.XPATH, '//*[@id="new-gallery-portal"]/div/div[2]/div/div').text
     except Exception as e:
         referencia = "sin referencia"
 
     try:
-        # Extraer el elemento del mapa estático
         static_map_element = driver.find_element(By.ID, 'static-map')
         src_attribute = static_map_element.get_attribute('src')
         
-        # Extraer la latitud y longitud usando una expresión regular
         lat_long_match = re.search(r'center=([-0-9.]+),([-0-9.]+)', src_attribute)
         if lat_long_match:
             latitud = lat_long_match.group(1)
@@ -86,7 +81,6 @@ for index, row in df.head(3).iterrows():
         longitud = "sin longitud"
 
     try:
-        # Extraer el elemento del mapa estático
         unidades_box = driver.find_element(By.ID, 'reactDevelopmentUnits')
         unidades_nav = unidades_box.find_element(By.CSS_SELECTOR, 'div.selectorsContainer')
         botones = unidades_nav.find_elements(By.XPATH, './button')
@@ -110,7 +104,8 @@ for index, row in df.head(3).iterrows():
                 a_element = departamento.find_element(By.CSS_SELECTOR, 'a')
                 url = a_element.get_attribute('href')
                 
-                service2 = webdriver.ChromeService(executable_path='chromedriver2.exe')
+                #service2 = webdriver.ChromeService(executable_path='chromedriver2.exe')
+                service2 = webdriver.ChromeService('./chromedriver')
                 driveraux = webdriver.Chrome(service=service2, options=options)
                 driveraux.get(url)
 
@@ -123,7 +118,16 @@ for index, row in df.head(3).iterrows():
                 dormitorios = caracteristicas.find_element(By.XPATH, '//li[i[contains(@class, "icon-dormitorio")]]')
                 mediobaño = caracteristicas.find_element(By.XPATH, '//li[i[contains(@class, "icon-toilete")]]')
 
-                print(precio.text)
+                try:
+                    long_description_element = driver.find_element(By.ID, 'longDescription')
+                    long_description = long_description_element.text.lower()
+                    
+                    if 'duplex' in long_description:
+                        tipo = 'duplex'
+                    else:
+                        tipo = 'flat'
+                except Exception as e:
+                    tipo = 'flat' 
                 
                 driveraux.quit()
                     
@@ -137,7 +141,7 @@ for index, row in df.head(3).iterrows():
     # Agregar los resultados
 
     #resultados.append((link, direccion, estado_final, direccion, fecha_entrega,', '.join(areas_comunes),referencia,latitud,longitud))
-    resultados.append((link,referencia,latitud,longitud,direccion,distrito,etapa,fecha_entrega,'financiamiento',areas_comunes))
+    resultados.append((link,referencia,latitud,longitud,direccion,distrito,etapa,fecha_entrega,areas_comunes,tipo,dormitorios,area,precio))
     
     driver.quit()
 
@@ -145,5 +149,5 @@ for index, row in df.head(3).iterrows():
 output_csv = './urbania/urbania_vf.csv'
 with open(output_csv, 'w', newline='', encoding='utf-8') as csvfile:
     csvwriter = csv.writer(csvfile)
-    csvwriter.writerow(['link', 'referencia', 'latitud', 'longitud', 'direccion','distrito','etapa','fecha_entrega','areas_comunes'])
+    csvwriter.writerow(['link', 'referencia', 'latitud', 'longitud', 'direccion','distrito','etapa','fecha_entrega','areas_comunes','tipo','dormitorios','area','precio'])
     csvwriter.writerows(resultados)
