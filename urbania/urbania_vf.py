@@ -15,16 +15,16 @@ user_agents = [
 options = webdriver.ChromeOptions()
 options.add_argument(f'user-agent={random.choice(user_agents)}')
 options.add_argument('--disable-extensions')
-#service = webdriver.ChromeService(executable_path='chromedriver.exe')
-service = webdriver.ChromeService('./chromedriver')
+service = webdriver.ChromeService(executable_path='chromedriver.exe')
+#service = webdriver.ChromeService('./chromedriver')
 
 input_csv = './urbania/urbania_links.csv'
 df = pd.read_csv(input_csv)
 resultados = []
 
 # Iterar sobre cada fila del CSV
-#for index, row in df.iterrows(): 
-for index, row in df.head(3).iterrows():
+for index, row in df.iterrows(): 
+#for index, row in df.head(3).iterrows():
     link = row['Link']
     distrito = row['Dirección']
 
@@ -105,8 +105,8 @@ for index, row in df.head(3).iterrows():
                 a_element = departamento.find_element(By.CSS_SELECTOR, 'a')
                 url = a_element.get_attribute('href')
                 
-                #service2 = webdriver.ChromeService(executable_path='chromedriver2.exe')
-                service2 = webdriver.ChromeService('./chromedriver')
+                service2 = webdriver.ChromeService(executable_path='chromedriver2.exe')
+                #service2 = webdriver.ChromeService('./chromedriver')
                 driveraux = webdriver.Chrome(service=service2, options=options)
                 driveraux.get(url)
 
