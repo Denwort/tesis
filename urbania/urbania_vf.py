@@ -86,7 +86,9 @@ for index, row in df.head(3).iterrows():
         longitud = "No encontrada"
 
     # Agregar los resultados
-    resultados.append((link, direccion, estado_final, direccion_extraida, fecha_entrega,', '.join(areas_comunes),referencia,latitud,longitud))
+
+    #resultados.append((link, direccion, estado_final, direccion_extraida, fecha_entrega,', '.join(areas_comunes),referencia,latitud,longitud))
+    resultados.append((link, referencia,latitud,longitud,direccion_extraida,direccion,estado_final,fecha_entrega,', '.join(areas_comunes)))
     
     driver.quit()
 
@@ -94,5 +96,5 @@ for index, row in df.head(3).iterrows():
 output_csv = './urbania/urbania_vf.csv'
 with open(output_csv, 'w', newline='', encoding='utf-8') as csvfile:
     csvwriter = csv.writer(csvfile)
-    csvwriter.writerow(['Link', 'Dirección', 'Estado', 'direccion', 'FechaEntrega','AreasComunes','referencia','Latitud','Longitud'])
+    csvwriter.writerow(['link', 'referencia', 'latitud', 'longitud', 'direccion','distrito','etapa','fecha_entrega','areas_comunes'])
     csvwriter.writerows(resultados)
