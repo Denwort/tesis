@@ -20,7 +20,7 @@ Datos de:
 - distrito
 - etapa ("en construccion", "en planos", "entrega inmediata")
 - fecha_entrega (fecha de entrega)
-- financiamiento (banco que financia)
+- financiamiento (banco que financia) (se quita)
 - areas comunes (listado de areas comunes o facilidades)
 
 - tipo ("flat" o "duplex")
