@@ -114,9 +114,16 @@ for index, row in df.head(3).iterrows():
                 driveraux = webdriver.Chrome(service=service2, options=options)
                 driveraux.get(url)
 
+                precio = driveraux.find_element(By.CSS_SELECTOR,'div.price-items')
+
                 caracteristicas = driveraux.find_element(By.CSS_SELECTOR, 'div.development-features-grid')
-                li_element = caracteristicas.find_element(By.XPATH, '//li[i[contains(@class, "icon-stotal")]]')
-                print(li_element.text)
+
+                area = caracteristicas.find_element(By.XPATH, '//li[i[contains(@class, "icon-stotal")]]')
+                baño = caracteristicas.find_element(By.XPATH, '//li[i[contains(@class, "icon-bano")]]')
+                dormitorios = caracteristicas.find_element(By.XPATH, '//li[i[contains(@class, "icon-dormitorio")]]')
+                mediobaño = caracteristicas.find_element(By.XPATH, '//li[i[contains(@class, "icon-toilete")]]')
+
+                print(precio.text)
                 
                 driveraux.quit()
                     
