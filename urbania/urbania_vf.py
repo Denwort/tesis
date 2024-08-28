@@ -95,7 +95,8 @@ for index, row in df.head(3).iterrows():
             departamentos_list = departamentos_box.find_element(By.CSS_SELECTOR, 'div.flickity-slider')
             departamentos = departamentos_list.find_elements(By.XPATH, './div')
 
-            for departamento in departamentos:
+            #for departamento in departamentos:
+            for departamento in departamentos[:3]:
 
                 #detalles_box = departamento.find_element(By.CSS_SELECTOR, 'div.unitFeatures')
                 #metros = detalles_box.find_element(By.XPATH, './span[1]')
@@ -113,10 +114,12 @@ for index, row in df.head(3).iterrows():
 
                 caracteristicas = driveraux.find_element(By.CSS_SELECTOR, 'div.development-features-grid')
 
-                area = caracteristicas.find_element(By.XPATH, '//li[i[contains(@class, "icon-stotal")]]')
-                baño = caracteristicas.find_element(By.XPATH, '//li[i[contains(@class, "icon-bano")]]')
-                dormitorios = caracteristicas.find_element(By.XPATH, '//li[i[contains(@class, "icon-dormitorio")]]')
-                mediobaño = caracteristicas.find_element(By.XPATH, '//li[i[contains(@class, "icon-toilete")]]')
+                area1 = caracteristicas.find_element(By.XPATH, '//li[i[contains(@class, "icon-stotal")]]')
+                area=area1.text
+                baño1 = caracteristicas.find_element(By.XPATH, '//li[i[contains(@class, "icon-bano")]]')
+                baño=baño1.text
+                dormitorios1 = caracteristicas.find_element(By.XPATH, '//li[i[contains(@class, "icon-dormitorio")]]')
+                dormitorios=dormitorios1.text
 
                 try:
                     long_description_element = driver.find_element(By.ID, 'longDescription')
