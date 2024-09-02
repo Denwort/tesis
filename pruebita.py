@@ -53,11 +53,13 @@ results_df = pd.DataFrame(columns=columns)
 # Establecer el radio (around) en una variable modificable
 radius = 1000  # Puedes cambiar este valor según sea necesario
 
-for index, row in df.iterrows():
+# Seleccionar las primeras 20 filas
+df_subset = df.head(20)
+
+for index, row in df_subset.iterrows():
     lat, lon = row['latitud'], row['longitud']
     result = query_overpass(lat, lon, radius)
     
-
     elements = result.get('elements', [])
     
     # Inicializar conteo y datos del POI más cercano
