@@ -41,7 +41,7 @@ poi_types = {
 }
 
 # Leer el archivo CSV
-df = pd.read_csv('./nexoinmobiliario.csv')
+df = pd.read_csv('./openstreetmap/nexoinmobiliario.csv')
 
 # Preparar un DataFrame para almacenar los resultados
 columns = ['Latitude', 'Longitude']
@@ -61,8 +61,9 @@ for index, row in df.iterrows():
 
     if prev_lat is not None and prev_lon is not None:
         if lat == prev_lat and lon == prev_lon:
-            print(lat, lon)
             continue
+        else:
+            print(lat, lon)
     prev_lat, prev_lon = lat, lon
 
     result = query_overpass(lat, lon, radius)
