@@ -4,51 +4,51 @@ import requests
 # Función para realizar la consulta Overpass
 def query_overpass(lat, lon, radius):
     overpass_url = "http://overpass-api.de/api/interpreter"
-    # Añadiendo múltiples tipos de POI en la consulta
     overpass_query = f"""
     [out:json];
     (
-      node["amenity"="restaurant"](around:{radius},{lat},{lon});
-      way["amenity"="restaurant"](around:{radius},{lat},{lon});
-      node["amenity"="fast_food"](around:{radius},{lat},{lon});
-      way["amenity"="fast_food"](around:{radius},{lat},{lon});
-      node["amenity"="university"](around:{radius},{lat},{lon});
-      way["amenity"="university"](around:{radius},{lat},{lon});
-      node["amenity"="school"](around:{radius},{lat},{lon});
-      way["amenity"="school"](around:{radius},{lat},{lon});
-      node["amenity"="kindergarten"](around:{radius},{lat},{lon});
-      way["amenity"="kindergarten"](around:{radius},{lat},{lon});
-      node["amenity"="hospital"](around:{radius},{lat},{lon});
-      way["amenity"="hospital"](around:{radius},{lat},{lon});
-      node["amenity"="pharmacy"](around:{radius},{lat},{lon});
-      way["amenity"="pharmacy"](around:{radius},{lat},{lon});
-      node["amenity"="clinic"](around:{radius},{lat},{lon});
-      way["amenity"="clinic"](around:{radius},{lat},{lon});
-      node["amenity"="bus_station"](around:{radius},{lat},{lon});
-      way["amenity"="bus_station"](around:{radius},{lat},{lon});
-      node["shop"="mall"](around:{radius},{lat},{lon});
-      way["shop"="mall"](around:{radius},{lat},{lon});
-      node["shop"="supermarket"](around:{radius},{lat},{lon});
-      way["shop"="supermarket"](around:{radius},{lat},{lon});
-      node["amenity"="bank"](around:{radius},{lat},{lon});
-      way["amenity"="bank"](around:{radius},{lat},{lon});
-      node["leisure"="fitness_centre"](around:{radius},{lat},{lon});
-      way["leisure"="fitness_centre"](around:{radius},{lat},{lon});
-      node["leisure"="swimming_pool"](around:{radius},{lat},{lon});
-      way["leisure"="swimming_pool"](around:{radius},{lat},{lon});
-      node["natural"="beach"](around:{radius},{lat},{lon});
-      way["natural"="beach"](around:{radius},{lat},{lon});
+      node(around:{radius},{lat},{lon})["amenity"];
+      way(around:{radius},{lat},{lon})["amenity"];
+      node(around:{radius},{lat},{lon})["shop"];
+      way(around:{radius},{lat},{lon})["shop"];
+      node(around:{radius},{lat},{lon})["leisure"];
+      way(around:{radius},{lat},{lon})["leisure"];
+      node(around:{radius},{lat},{lon})["highway"="bus_stop"];
+      way(around:{radius},{lat},{lon})["highway"="bus_stop"];
     );
     out center;
     """
     response = requests.get(overpass_url, params={'data': overpass_query})
     return response.json()
 
+# Mapeo de tipos de POI
+poi_types = {
+    "restaurant": "Restaurants",
+    "fast_food": "Fast Food",
+    "university": "Universities",
+    "school": "Schools",
+    "kindergarten": "Kindergartens",
+    "hospital": "Hospitals",
+    "pharmacy": "Pharmacies",
+    "clinic": "Clinics",
+    "mall": "Malls",
+    "supermarket": "Supermarkets",
+    "bank": "Banks",
+    "fitness_centre": "Fitness Centres",
+    "swimming_pool": "Swimming Pools",
+    "park": "Parks",
+    "bus_stop": "Bus Stops"
+}
+
 # Leer el archivo CSV
-df = pd.read_csv('./urbania/urbania_vf.csv') 
+df = pd.read_csv('./nexoinmobiliario.csv')
 
 # Preparar un DataFrame para almacenar los resultados
-results_df = pd.DataFrame()
+columns = ['Latitude', 'Longitude']
+for poi in poi_types.values():
+    columns.extend([f'{poi}_Count', f'{poi}_Lat', f'{poi}_Lon'])
+
+results_df = pd.DataFrame(columns=columns)
 
 # Establecer el radio (around) en una variable modificable
 radius = 1000  # Puedes cambiar este valor según sea necesario
@@ -56,21 +56,44 @@ radius = 1000  # Puedes cambiar este valor según sea necesario
 for index, row in df.iterrows():
     lat, lon = row['latitud'], row['longitud']
     result = query_overpass(lat, lon, radius)
+    
+
     elements = result.get('elements', [])
+    
+    # Inicializar conteo y datos del POI más cercano
+    poi_data = {poi: {'count': 0, 'lat': 0, 'lon': 0} for poi in poi_types.values()}
+    
     for element in elements:
-        # Aquí podrías extraer y manejar más información específica de cada POI
-        poi_type = element['tags'].get('amenity', element['tags'].get('shop', ''))
-        poi_name = element['tags'].get('name', 'Nombre no disponible')
-        # Agregar nueva fila al DataFrame
-        new_row = pd.DataFrame({
-            'Latitude': [lat],
-            'Longitude': [lon],
-            'POI Type': [poi_type],
-            'POI Name': [poi_name]
-        })
-        results_df = pd.concat([results_df, new_row], ignore_index=True)
+        if 'lat' in element and 'lon' in element:
+            el_lat, el_lon = element['lat'], element['lon']
+            
+            if 'highway' in element['tags'] and element['tags']['highway'] == 'bus_stop':
+                poi_type = "Bus Stops"
+            else:
+                poi = element['tags'].get('amenity', element['tags'].get('shop', element['tags'].get('leisure', '')))
+                poi_type = poi_types.get(poi, None)
+            
+            if poi_type:
+                poi_data[poi_type]['count'] += 1
+                # Solo actualizar latitud y longitud si aún no se ha encontrado uno
+                if poi_data[poi_type]['lat'] == 0 and poi_data[poi_type]['lon'] == 0:
+                    poi_data[poi_type]['lat'] = el_lat
+                    poi_data[poi_type]['lon'] = el_lon
+    
+    # Crear fila con datos
+    row_data = {
+        'Latitude': lat,
+        'Longitude': lon
+    }
+    for poi, data in poi_data.items():
+        row_data[f'{poi}_Count'] = data['count']
+        row_data[f'{poi}_Lat'] = data['lat']
+        row_data[f'{poi}_Lon'] = data['lon']
+    
+    new_row = pd.DataFrame([row_data])
+    results_df = pd.concat([results_df, new_row], ignore_index=True)
 
 # Guardar los resultados en un nuevo archivo CSV
-results_df.to_csv('poi_info.csv', index=False)
+results_df.to_csv('poi_info_with_counts_and_coordinates.csv', index=False)
 
-print("Información guardada en 'poi_info.csv'.")
+print("Información guardada en 'poi_info_with_counts_and_coordinates.csv'.")
