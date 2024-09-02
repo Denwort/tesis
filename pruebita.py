@@ -53,8 +53,18 @@ results_df = pd.DataFrame(columns=columns)
 # Establecer el radio (around) en una variable modificable
 radius = 1000  # Puedes cambiar este valor según sea necesario
 
+prev_lat, prev_lon = None, None
+
 for index, row in df.iterrows():
+
     lat, lon = row['latitud'], row['longitud']
+
+    if prev_lat is not None and prev_lon is not None:
+        if lat == prev_lat and lon == prev_lon:
+            print(lat, lon)
+            continue
+    prev_lat, prev_lon = lat, lon
+
     result = query_overpass(lat, lon, radius)
     
 

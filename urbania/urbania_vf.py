@@ -15,6 +15,8 @@ user_agents = [
 options = webdriver.ChromeOptions()
 options.add_argument(f'user-agent={random.choice(user_agents)}')
 options.add_argument('--disable-extensions')
+options.add_argument('headless')
+options.add_experimental_option('excludeSwitches', ['enable-logging'])
 service = webdriver.ChromeService(executable_path='chromedriver.exe')
 #service = webdriver.ChromeService('./chromedriver')
 
@@ -22,9 +24,16 @@ input_csv = './urbania/urbania_links.csv'
 df = pd.read_csv(input_csv)
 resultados = []
 
+def check_element_exists(driver, by, value):
+    try:
+        driver.find_element(by, value)
+        return True
+    except Exception:
+        return False
+
 # Iterar sobre cada fila del CSV
-for index, row in df.iterrows(): 
-#for index, row in df.head(3).iterrows():
+#for index, row in df.iterrows(): 
+for index, row in df.iloc[13:16].iterrows():
     link = row['Link']
     distrito = row['Dirección']
 
@@ -36,34 +45,50 @@ for index, row in df.iterrows():
     cookies = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="cookies-policy"]/div/div/div[2]/button'))) 
     cookies.click()
 
+    aviso_finalizado = check_element_exists(driver, By.CSS_SELECTOR, 'div.offline-content')
+    if aviso_finalizado:
+        print("finalizado:", link)
+        continue
+
+    es_proyecto = check_element_exists(driver, By.ID, 'reactDevelopmentUnits')
+
     try:
-        direccion_element = driver.find_element(By.CSS_SELECTOR, 'h4#ref-map')
+        direccion_element = driver.find_element(By.CSS_SELECTOR, 'div.section-location-property')
+        direccion_h4 = direccion_element.find_element(By.XPATH, './h4')
         direccion = direccion_element.text.strip()
     except Exception as e:
-        direccion = "No especificada"
+        direccion = ""
+        print("sin direccion:", link)
 
     try:
         estado = driver.find_element(By.CSS_SELECTOR, 'div.status-delivery')
         etapa = estado.find_element(By.CSS_SELECTOR, 'div.IN_PROGRESS').text[:-2]
     except Exception as e:
-        etapa = "sin estado"
+        etapa = ""
+        if(es_proyecto==True):
+            print("sin etapa:", link)
 
     try:
         fecha_entrega = driver.find_element(By.XPATH,'//*[@id="article-container"]/div[1]/div/span[2]').text
     except Exception as e:
-        fecha_entrega = "sin fecha_entrega"
+        fecha_entrega = ""
+        if(es_proyecto==True):
+            print("sin fecha_entrega:", link)
 
     try:
         areas_comunes_box = driver.find_element(By.ID, 'reactGeneralFeatures')
-        areas_comunes_elements = areas_comunes_box.find_elements(By.XPATH, './div/div')
+        areas_comunes_elements = areas_comunes_box.find_elements(By.XPATH, './div/div[1]/div')
         areas_comunes = [element.text.strip() for element in areas_comunes_elements]
+        print(areas_comunes)
     except Exception as e:
         areas_comunes = []
+        print("sin areas_comunes:", link)
 
     try:
         referencia = driver.find_element(By.XPATH, '//*[@id="new-gallery-portal"]/div/div[2]/div/div').text
     except Exception as e:
-        referencia = "sin referencia"
+        referencia = ""
+        print("sin referencia:", link)
 
     try:
         static_map_element = driver.find_element(By.ID, 'static-map')
@@ -74,13 +99,15 @@ for index, row in df.iterrows():
             latitud = lat_long_match.group(1)
             longitud = lat_long_match.group(2)
         else:
-            latitud = "sin latitud"
-            longitud = "sin longitud"
+            latitud = ""
+            longitud = ""
+            print(link)
     except Exception as e:
-        latitud = "sin latitud"
-        longitud = "sin longitud"
+        latitud = ""
+        longitud = ""
+        print("sin coordenadas:", link)
 
-    try:
+    if es_proyecto:
         unidades_box = driver.find_element(By.ID, 'reactDevelopmentUnits')
         unidades_nav = unidades_box.find_element(By.CSS_SELECTOR, 'div.selectorsContainer')
         botones = unidades_nav.find_elements(By.XPATH, './button')
@@ -96,7 +123,7 @@ for index, row in df.iterrows():
             departamentos = departamentos_list.find_elements(By.XPATH, './div')
 
             #for departamento in departamentos:
-            for departamento in departamentos[:3]:
+            for departamento in departamentos[:2]:
 
                 #detalles_box = departamento.find_element(By.CSS_SELECTOR, 'div.unitFeatures')
                 #metros = detalles_box.find_element(By.XPATH, './span[1]')
@@ -110,16 +137,34 @@ for index, row in df.iterrows():
                 driveraux = webdriver.Chrome(service=service2, options=options)
                 driveraux.get(url)
 
-                precio = driveraux.find_element(By.CSS_SELECTOR,'div.price-items')
+                try:
+                    precio = driveraux.find_element(By.CSS_SELECTOR,'div.price-items')
+                except Exception as e:
+                    precio = ''
+                    print("sin precio:", url)
 
                 caracteristicas = driveraux.find_element(By.CSS_SELECTOR, 'div.development-features-grid')
 
-                area1 = caracteristicas.find_element(By.XPATH, '//li[i[contains(@class, "icon-stotal")]]')
-                area=area1.text
-                baño1 = caracteristicas.find_element(By.XPATH, '//li[i[contains(@class, "icon-bano")]]')
-                baño=baño1.text
-                dormitorios1 = caracteristicas.find_element(By.XPATH, '//li[i[contains(@class, "icon-dormitorio")]]')
-                dormitorios=dormitorios1.text
+                try:
+                    area1 = caracteristicas.find_element(By.XPATH, '//li[i[contains(@class, "icon-stotal")]]')
+                    area=area1.text
+                except Exception as e:
+                    area = ''
+                    print("sin area:", url)
+
+                try:
+                    bano1 = caracteristicas.find_element(By.XPATH, '//li[i[contains(@class, "icon-bano")]]')
+                    banos=bano1.text
+                except Exception as e:
+                    banos = ''
+                    print("sin banos:", url)
+
+                try:
+                    dormitorios1 = caracteristicas.find_element(By.XPATH, '//li[i[contains(@class, "icon-dormitorio")]]')
+                    dormitorios=dormitorios1.text
+                except Exception as e:
+                    dormitorios = ''
+                    print("sin dormitorios:", url)
 
                 try:
                     long_description_element = driver.find_element(By.ID, 'longDescription')
@@ -132,19 +177,15 @@ for index, row in df.iterrows():
                 except Exception as e:
                     tipo = 'flat' 
                 
-                driveraux.quit()
-                    
-
-
-
-        
-    except Exception as e:
-        print(traceback.format_exc())
-
-    # Agregar los resultados
+                finally:
+                    driveraux.quit()
+                
+    else:
+        print("aviso unico: ", link)
+        tipo = 'unico' 
 
     #resultados.append((link, direccion, estado_final, direccion, fecha_entrega,', '.join(areas_comunes),referencia,latitud,longitud))
-    resultados.append((link,referencia,latitud,longitud,direccion,distrito,etapa,fecha_entrega,areas_comunes,tipo,dormitorios,area,precio))
+    resultados.append((link,referencia,latitud,longitud,direccion,distrito,etapa,fecha_entrega,areas_comunes,tipo,dormitorios,banos,area,precio))
     
     driver.quit()
 
@@ -152,5 +193,5 @@ for index, row in df.iterrows():
 output_csv = './urbania/urbania_vf.csv'
 with open(output_csv, 'w', newline='', encoding='utf-8') as csvfile:
     csvwriter = csv.writer(csvfile)
-    csvwriter.writerow(['link', 'referencia', 'latitud', 'longitud', 'direccion','distrito','etapa','fecha_entrega','areas_comunes','tipo','dormitorios','area','precio'])
+    csvwriter.writerow(['link', 'referencia', 'latitud', 'longitud', 'direccion','distrito','etapa','fecha_entrega','areas_comunes','tipo','dormitorios','banos','area','precio'])
     csvwriter.writerows(resultados)
