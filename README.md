@@ -23,10 +23,11 @@ Datos de:
 - financiamiento (banco que financia) (se quita)
 - areas comunes (listado de areas comunes o facilidades)
 
-- tipo ("flat" o "duplex")
-- tipologia (tipo o modelo del departamento)
-- piso
-- dormitorios
-- area
-- precio (con moneda)
+- tipo ("flat" o "duplex")                          noc
+- tipologia (tipo o modelo del departamento)        
+- dormitorios                                       ya
+- baño                                              ya
+- area_2                                            ya
+- area_3                                            ya
+- precio (con moneda)                               ya
 
