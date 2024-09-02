@@ -1,4 +1,10 @@
 import requests
+from dotenv import load_dotenv
+import os
+
+# Cargar las variables de entorno del archivo .env
+load_dotenv()
+api_key = os.getenv('api_key')
 
 def obtener_detalles_lugar(api_key, latitud, longitud):
     # URL de la API de Google Places para buscar lugares cercanos
@@ -48,7 +54,7 @@ def obtener_detalles_lugar(api_key, latitud, longitud):
         return f"Error en la solicitud a la API de Google Places. Código de estado: {respuesta.status_code}"
 
 # Ejemplo de uso
-api_key = "TU_CLAVE_API_AQUI"  # Reemplaza con tu clave API
+#   # Reemplaza con tu clave API
 latitud = -12.1220869  # Ejemplo: Latitud
 longitud = -76.9926445  # Ejemplo: Longitud
 
