@@ -8,7 +8,7 @@ import numpy as np
 import xgboost as xgb
 import joblib
 
-# Cargar y preparar los datos
+# Cargar
 df = pd.read_csv('./limpieza/datos_limpios.csv')
 df = df.drop(columns=['index'])
 
@@ -60,3 +60,61 @@ calcular_metrica(y_test, y_pred_lr, "Linear Regression")
 joblib.dump(model_rf, './modelo/random_forest.pkl')
 joblib.dump(model_xgb, './modelo/xgboost.pkl')
 joblib.dump(model_lr, './modelo/linear_regression.pkl')
+
+
+'''
+# XAI
+import shap
+
+# Random Forest
+explainer_rf = shap.TreeExplainer(model_rf)
+shap_values_rf = explainer_rf(X_test)
+print("SHAP Summary Plot para Random Forest:")
+shap.summary_plot(shap_values_rf, X_test)
+
+
+# XGBoost
+explainer_xgb = shap.TreeExplainer(model_xgb)
+shap_values_xgb = explainer_xgb(X_test)
+print("SHAP Summary Plot para XGBoost:")
+shap.summary_plot(shap_values_xgb, X_test)
+
+# Linear Regression
+explainer_lr = shap.Explainer(model_lr, X_train)
+shap_values_lr = explainer_lr(X_test)
+print("SHAP Summary Plot para Linear Regression:")
+shap.summary_plot(shap_values_lr, X_test)
+'''
+
+# LIME
+from lime.lime_tabular import LimeTabularExplainer
+
+explainer_lime = LimeTabularExplainer(X_train.values, 
+                                      training_labels=y_train.values,
+                                      feature_names=X_train.columns, 
+                                      verbose=True, 
+                                      mode='regression')
+
+# Explicación para una instancia específica (ejemplo: la primera instancia de X_test)
+i = 0 
+
+# Random Forest
+print("Explicación LIME para Random Forest:")
+def predict_rf(X):
+    return model_rf.predict(pd.DataFrame(X, columns=X_train.columns))
+exp_rf = explainer_lime.explain_instance(X_test.values[i], predict_rf, num_features=10)
+exp_rf.save_to_file('./lime_explicacion_rf.html')
+
+# XGBoost
+print("Explicación LIME para XGBoost:")
+def predict_xgb(X):
+    return model_xgb.predict(pd.DataFrame(X, columns=X_train.columns))
+exp_xgb = explainer_lime.explain_instance(X_test.values[i], predict_xgb, num_features=10)
+exp_xgb.save_to_file('./lime_explicacion_xgb.html')
+
+# Linear Regression
+print("Explicación LIME para Linear Regression:")
+def predict_lr(X):
+    return model_lr.predict(pd.DataFrame(X, columns=X_train.columns))
+exp_lr = explainer_lime.explain_instance(X_test.values[i], predict_lr, num_features=10)
+exp_lr.save_to_file('./lime_explicacion_lr.html')
