@@ -62,7 +62,7 @@ joblib.dump(model_xgb, './modelo/xgboost.pkl')
 joblib.dump(model_lr, './modelo/linear_regression.pkl')
 
 
-'''
+
 # XAI
 import shap
 
@@ -84,6 +84,7 @@ explainer_lr = shap.Explainer(model_lr, X_train)
 shap_values_lr = explainer_lr(X_test)
 print("SHAP Summary Plot para Linear Regression:")
 shap.summary_plot(shap_values_lr, X_test)
+
 '''
 
 # LIME
@@ -118,3 +119,5 @@ def predict_lr(X):
     return model_lr.predict(pd.DataFrame(X, columns=X_train.columns))
 exp_lr = explainer_lime.explain_instance(X_test.values[i], predict_lr, num_features=10)
 exp_lr.save_to_file('./lime_explicacion_lr.html')
+
+'''
