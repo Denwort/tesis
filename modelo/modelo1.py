@@ -36,7 +36,7 @@ param_grid_rf = {
     'max_depth': [None, 10, 20, 30]
 }
 
-grid_rf = GridSearchCV(estimator=RandomForestRegressor(random_state=42), param_grid=param_grid_rf, cv=5, scoring='neg_mean_squared_error', n_jobs=-1)
+grid_rf = GridSearchCV(estimator=RandomForestRegressor(random_state=42), param_grid=param_grid_rf, cv=5, n_jobs=-1)
 grid_rf.fit(X_train, y_train)
 
 # Imprimir los mejores hiperparámetros encontrados para Random Forest
@@ -52,7 +52,7 @@ param_grid_xgb = {
     'max_depth': [3, 6, 10]
 }
 
-grid_xgb = GridSearchCV(estimator=xgb.XGBRegressor(random_state=42), param_grid=param_grid_xgb, cv=5, scoring='neg_mean_squared_error', n_jobs=-1)
+grid_xgb = GridSearchCV(estimator=xgb.XGBRegressor(random_state=42), param_grid=param_grid_xgb, cv=5, n_jobs=-1)
 grid_xgb.fit(X_train, y_train)
 
 # Imprimir los mejores hiperparámetros encontrados para XGBoost
