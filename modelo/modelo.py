@@ -13,7 +13,7 @@ df = pd.read_csv('./limpieza/datos_limpios.csv')
 df = df.drop(columns=['index'])
 
 label_encoders = {}
-for column in ['distrito', 'etapa', 'tipo', 'moneda']:
+for column in ['distrito', 'etapa', 'tipo']:
     le = LabelEncoder()
     df[column] = le.fit_transform(df[column])
     label_encoders[column] = le
