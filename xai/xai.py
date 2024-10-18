@@ -7,7 +7,7 @@ from sklearn.preprocessing import LabelEncoder
 import numpy as np
 import xgboost as xgb
 import joblib
-
+import pickle
 
 # Cargar
 df = pd.read_csv('./tengosueño.csv')
@@ -40,28 +40,7 @@ model_lr = LinearRegression()
 model_lr.fit(X_train, y_train)
 y_pred_lr = model_lr.predict(X_test)
 
-# Calcular métricas de evaluación
-def calcular_metrica(y_test, y_pred, model_name):
-    r2 = r2_score(y_test, y_pred)
-    rmse = np.sqrt(mean_squared_error(y_test, y_pred))
-    mae = mean_absolute_error(y_test, y_pred)
-    mape = np.mean(np.abs((y_test - y_pred) / y_test)) * 100
-    
-    print(f'{model_name}')
-    print(f'R² (R Squared): {r2}')
-    print(f'RMSE (Root Mean Squared Error): {rmse}')
-    print(f'MAE (Mean Absolute Error): {mae}')
-    print(f'MAPE (Mean Absolute Percentage Error): {mape}%\n')
 
-# Evaluar cada modelo
-calcular_metrica(y_test, y_pred_rf, "Random Forest Regressor")
-calcular_metrica(y_test, y_pred_xgb, "XGBoost Regressor")
-calcular_metrica(y_test, y_pred_lr, "Linear Regression")
-
-# Guardar los modelos entrenados
-joblib.dump(model_rf, './modelo/random_forest.pkl')
-joblib.dump(model_xgb, './modelo/xgboost.pkl')
-joblib.dump(model_lr, './modelo/linear_regression.pkl')
 
 
 
@@ -135,30 +114,32 @@ plt.show()
 
 
 
-'''
+
 # SHAP local
 import shap
 instance_idx = 0
 # Random Forest
-explainer = shap.TreeExplainer(model_rf)
-shap_values = explainer.shap_values(X)
-shap.initjs()
-shap.force_plot(explainer.expected_value, shap_values[0, :], X.iloc[0, :])
+explainer = shap.Explainer(model_rf)
+shap_values = explainer(X)
+#local_values = shap_values[0][instance_idx]
+shap.plots.scatter(shap_values[:, "Schools_Count"])
+
+#shap.initjs()
+#shap.force_plot(explainer.expected_value, shap_values[0, :], X.iloc[0, :])
 # XGBoost
-explainer = shap.TreeExplainer(model_xgb)
+explainer = shap.Explainer(model_xgb)
 explanation = explainer(X_test)
-shap.initjs()
-shap.force_plot(explainer.expected_value[1], explanation.values[0, :], X_test.iloc[0, :])
+#shap.initjs()
+#shap.force_plot(explainer.expected_value[1], explanation.values[0, :], X_test.iloc[0, :])
 # Linear Regression
 explainer = shap.Explainer(model_lr, X_train)
 explanation = explainer(X_test)
-shap.initjs()
-shap.force_plot(explainer.expected_value[1], explanation.values[0, :], X_test.iloc[0, :])
+#shap.initjs()
+#shap.force_plot(explainer.expected_value[1], explanation.values[0, :], X_test.iloc[0, :])
+
+
+
 '''
-
-
-
-
 # LIME
 from lime.lime_tabular import LimeTabularExplainer
 explainer_lime = LimeTabularExplainer(X_train.values, 
@@ -186,7 +167,7 @@ def predict_lr(X):
     return model_lr.predict(pd.DataFrame(X, columns=X_train.columns))
 exp_lr = explainer_lime.explain_instance(X_test.values[i], predict_lr, num_features=10)
 exp_lr.save_to_file('./lime_explicacion_lr.html')
-
+'''
 
 
 
